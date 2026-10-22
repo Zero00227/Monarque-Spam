@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MONARQUE</title>
+  <!-- Importation de la police futuriste Orbitron depuis Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Thème sombre global et application de la police futuriste */
+    body {
+      background-color: #0d0d0d !important;
+      color: #ffffff !important;
+      font-family: 'Orbitron', sans-serif !important;
+      letter-spacing: 2px;
+    }
+
+    /* Animation du néon clignotant Vert et Rouge */
+    @keyframes neonBlink {
+      0%, 100% {
+        border-color: #00ff00;
+        box-shadow: 0 0 5px #00ff00, 0 0 15px #00ff00;
+      }
+      50% {
+        border-color: #ff0000;
+        box-shadow: 0 0 5px #ff0000, 0 0 15px #ff0000;
+      }
+    }
+
+    /* Style des titres pour accentuer l'effet futuriste */
+    h1 {
+      font-weight: 900;
+      text-transform: uppercase;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    }
+
+    /* Application du style aux bordures des blocs de saisie, boutons et éléments ad */
+    .carre, .carre2, .ad, .pass {
+      border: 2px solid #00ff00;
+      border-radius: 8px;
+      animation: neonBlink 1.5s infinite ease-in-out;
+      background-color: #1a1a1a !important;
+      color: #fff !important;
+      font-family: 'Orbitron', sans-serif !important;
+    }
+
+    /* Configuration du bouton de contact comme un lien cliquable propre */
+    a.ad {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      text-decoration: none;
+      padding: 10px;
+      cursor: pointer;
+    }
+    
+    a.ad h4 {
+      margin: 0;
+      color: #ffffff;
+    }
+
+    /* Ajustement pour l'input de mot de passe */
+    .pass {
+      outline: none;
+      padding: 10px;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      animation: none;
+      width: 100%;
+      box-sizing: border-box;
+      text-align: center;
+    }
+    
+    .carre2 {
+      cursor: pointer;
+      text-align: center;
+      font-weight: 700;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>MONARQUE</h1>
+  
+  <div class="carre">
+    <input class="pass" type="password" placeholder="ENTRE LE CODE.." value="MONARQUE-V1">
+  </div>
+  
+  <div class="carre2"><h3>VALID</h3></div>
+  
+  <div class="menu3">
+    <svg xmlns="http://w3.org" width="25" height="25" fill="red" class="x" viewBox="0 0 16 16">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+  <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+</svg>
+
+<!-- Restauration de votre lien WhatsApp direct et complet -->
+<a href="https://wa.me." target="_blank" class="ad">
+  <svg xmlns="http://w3.org" width="20" height="20" fill="white" class="what"  viewBox="0 0 16 16">
+  <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/>
+</svg>
+  <h4>WHATSAPP</h4>
+</a>
+
+  </div>
+  <svg xmlns="http://w3.org" width="30" height="30" fill="white" class="list1" viewBox="0 0 16 16">
+  <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
+</svg>
+<div class="charge"></div>
+<script src="index.js"></script>
+<script src="admin.js"></script>
+</body>
+<footer>
+  <h5>CREATE BY MONARQUE</h5>
+</footer>
+</html>
