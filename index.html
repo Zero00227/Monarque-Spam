@@ -1,122 +1,290 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>
+      Monarque Spam
+    </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://googleapis.com" rel="stylesheet" />
+    <style>
+      :root{
+  --bg: #050508;
+  --panel: #0d0d14;
+  --border: #1f3d3d;
+  --neon-blue: #00f0ff;
+  --neon-green: #39ff14;
+  --text: #e2e8f0;
+}
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MONARQUE</title>
-  <!-- Importation de la police futuriste Orbitron depuis Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-  <style>
-    /* Thème sombre global et application de la police futuriste */
-    body {
-      background-color: #0d0d0d !important;
-      color: #ffffff !important;
-      font-family: 'Orbitron', sans-serif !important;
-      letter-spacing: 2px;
-    }
+*{box-sizing:border-box}
 
-    /* Animation du néon clignotant Vert et Rouge */
-    @keyframes neonBlink {
-      0%, 100% {
-        border-color: #00ff00;
-        box-shadow: 0 0 5px #00ff00, 0 0 15px #00ff00;
-      }
-      50% {
-        border-color: #ff0000;
-        box-shadow: 0 0 5px #ff0000, 0 0 15px #ff0000;
-      }
-    }
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:"JetBrains Mono", monospace;
+  background: radial-gradient(circle at top, #0f2027, #203a43, #2c5364);
+  background: #050508;
+  color:var(--text);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
 
-    /* Style des titres pour accentuer l'effet futuriste */
-    h1 {
-      font-weight: 900;
-      text-transform: uppercase;
-      text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-    }
+/* Animation de clignotement pour les néons */
+@keyframes neonFlicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+    opacity: 1;
+  }
+  20%, 24%, 55% {
+    opacity: 0.7;
+  }
+}
 
-    /* Application du style aux bordures des blocs de saisie, boutons et éléments ad */
-    .carre, .carre2, .ad, .pass {
-      border: 2px solid #00ff00;
-      border-radius: 8px;
-      animation: neonBlink 1.5s infinite ease-in-out;
-      background-color: #1a1a1a !important;
-      color: #fff !important;
-      font-family: 'Orbitron', sans-serif !important;
-    }
+.panel{
+  width:380px;
+  background: var(--panel);
+  border:2px solid var(--neon-blue);
+  border-radius:20px;
+  padding:26px;
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.2), inset 0 0 15px rgba(0, 240, 255, 0.1);
+  animation: neonFlicker 4s infinite alternate;
+}
 
-    /* Configuration du bouton de contact comme un lien cliquable propre */
-    a.ad {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      text-decoration: none;
-      padding: 10px;
-      cursor: pointer;
-    }
-    
-    a.ad h4 {
-      margin: 0;
-      color: #ffffff;
-    }
+.avatar{
+  width:86px;
+  height:86px;
+  margin:0 auto 14px;
+  border-radius:50%;
+  background:url("https://catbox.moe") center/cover no-repeat;
+  border: 2px solid var(--neon-green);
+  box-shadow: 0 0 20px rgba(57, 255, 20, 0.6);
+}
 
-    /* Ajustement pour l'input de mot de passe */
-    .pass {
-      outline: none;
-      padding: 10px;
-      background: transparent !important;
-      border: none !important;
-      box-shadow: none !important;
-      animation: none;
-      width: 100%;
-      box-sizing: border-box;
-      text-align: center;
-    }
-    
-    .carre2 {
-      cursor: pointer;
-      text-align: center;
-      font-weight: 700;
-    }
-  </style>
-</head>
+h1{
+  text-align:center;
+  margin:0;
+  font-size:22px;
+  color:var(--neon-blue);
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+}
 
-<body>
-  <h1>MONARQUE</h1>
-  
-  <div class="carre">
-    <input class="pass" type="password" placeholder="ENTRE LE CODE.." value="MONARQUE-V1">
-  </div>
-  
-  <div class="carre2"><h3>VALID</h3></div>
-  
-  <div class="menu3">
-    <svg xmlns="http://w3.org" width="25" height="25" fill="red" class="x" viewBox="0 0 16 16">
-  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-  <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
-</svg>
+.sub{
+  text-align:center;
+  font-size:12px;
+  color: var(--neon-green);
+  opacity:.9;
+  margin:6px 0 18px;
+  text-shadow: 0 0 5px rgba(57, 255, 20, 0.4);
+}
 
-<!-- Restauration de votre lien WhatsApp direct et complet -->
-<a href="https://wa.me." target="_blank" class="ad">
-  <svg xmlns="http://w3.org" width="20" height="20" fill="white" class="what"  viewBox="0 0 16 16">
-  <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/>
-</svg>
-  <h4>WHATSAPP</h4>
-</a>
+input{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  background:#09090f;
+  border:1px solid var(--neon-blue);
+  color:var(--text);
+  margin-bottom:12px;
+  font-family:"JetBrains Mono", monospace;
+  font-size:13px;
+  box-shadow: 0 0 5px rgba(0, 240, 255, 0.1);
+  outline: none;
+}
 
-  </div>
-  <svg xmlns="http://w3.org" width="30" height="30" fill="white" class="list1" viewBox="0 0 16 16">
-  <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
-</svg>
-<div class="charge"></div>
-<script src="index.js"></script>
-<script src="admin.js"></script>
-</body>
-<footer>
-  <h5>CREATE BY MONARQUE</h5>
-</footer>
+input:focus {
+  border-color: var(--neon-green);
+  box-shadow: 0 0 10px rgba(57, 255, 20, 0.3);
+}
+
+.btns{display:flex;gap:10px;margin-bottom:18px}
+
+button{
+  flex:1;
+  padding:12px;
+  border-radius:12px;
+  border: 1px solid var(--neon-green);
+  background: transparent;
+  color: var(--neon-green);
+  font-family:"JetBrains Mono", monospace;
+  font-size:13px;
+  cursor:pointer;
+  box-shadow: 0 0 8px rgba(57, 255, 20, 0.2);
+  transition: all 0.3s ease;
+}
+
+button.active{
+  background: rgba(57, 255, 20, 0.1);
+  font-weight: 600;
+  text-shadow: 0 0 5px var(--neon-green);
+}
+
+button:hover {
+  background: var(--neon-green);
+  color: #000;
+  box-shadow: 0 0 15px var(--neon-green);
+}
+
+.logs{
+  background:#040407;
+  border:1px solid var(--neon-blue);
+  border-radius:14px;
+  padding:14px;
+  min-height:180px;
+  font-size:14px;
+  line-height:1.6;
+  color: var(--neon-green);
+  overflow:hidden;
+  box-shadow: inset 0 0 10px rgba(0, 240, 255, 0.05);
+}
+
+.progress-container{
+  width:100%;
+  height:14px;
+  background:#09090f;
+  border: 1px solid var(--neon-blue);
+  border-radius:12px;
+  margin-bottom:12px;
+  overflow:hidden;
+}
+
+.progress-bar{
+  width:0%;
+  height:100%;
+  background: linear-gradient(90deg, var(--neon-blue), var(--neon-green));
+  border-radius:12px;
+  transition:width 0.2s ease;
+  box-shadow: 0 0 10px var(--neon-blue);
+}
+
+.log{animation:fadeIn .4s ease}
+.done{color: var(--neon-blue); font-weight:600; text-shadow: 0 0 8px var(--neon-blue)}
+
+.footer{text-align:center;margin-top:16px;font-size:10px;color: var(--neon-blue); opacity:.6}
+
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(6px)}
+  to{opacity:1;transform:none}
+}
+    </style>
+  </head>
+  <body>
+    <div class="panel">
+      <div class="avatar">
+      </div>
+      <h1>
+        Monarque Spam
+      </h1>
+      <div class="sub">
+        WHATSAPP REPORT SYSTEM
+      </div>
+      <input id="number" placeholder="Numéro WhatsApp à signaler" />
+      <div class="btns">
+        <button id="signalBtn" class="active">
+          SIGNALER
+        </button>
+      </div>
+      <div class="progress-container">
+        <div id="progressBar" class="progress-bar">
+        </div>
+      </div>
+      <div class="logs" id="logs">
+        <div class="log">
+          [ARCANE] init::0x9fa3c4
+        </div>
+      </div>
+      <div class="footer">
+        Powered by Monarque
+      </div>
+    </div>
+    <audio id="sound" src="https://catbox.moe">
+    </audio>
+    <script>
+      const logs = document.getElementById("logs");
+      const signalBtn = document.getElementById("signalBtn");
+      const progressBar = document.getElementById("progressBar");
+      const sound = document.getElementById("sound");
+
+      const logPool = [
+        "[ARCANE] payload.inject()",
+        "[ARCANE] stream@ws://node/Δ7a91",
+        "[ARCANE] xor.decrypt[0x4f9a]",
+        "[ARCANE] hook.whatsapp.report",
+        "[ARCANE] memory.flush :: 0x0007ff",
+        "[ARCANE] socket.handshake::ok",
+        "[ARCANE] heap.alloc[512kb]",
+        "[ARCANE] api.whatsapp/v9/report",
+        "[ARCANE] thread.spawn::reporter",
+        "[ARCANE] checksum.bypass ✓",
+        "[ARCANE] routing.tunnel::active",
+        "[ARCANE] signal.push.queue",
+        "[ARCANE] kernel.map::patched",
+        "[ARCANE] entropy.sync",
+        "[ARCANE] watchdog.disable",
+        "[ARCANE] tx.commit::node-7",
+        "[ARCANE] buffer.rotate",
+        "[ARCANE] process.obfuscate"
+      ];
+
+      const MAX_TIME = 120;
+      const LOG_BATCH = 8;
+      let started = false;
+      let elapsed = 0;
+      let currentLogs = [];
+
+      document.body.addEventListener("click",()=>{
+        if(sound.paused){
+          sound.loop = true;
+          sound.play().catch(()=>{});
+        }
+      });
+
+      signalBtn.onclick = ()=>{
+        if(started) return;
+        started = true;
+        elapsed = 0;
+        currentLogs = [];
+        logs.innerHTML = "";
+        progressBar.style.width = "0%";
+        sound.currentTime = 0;
+        sound.play().catch(()=>{});
+
+        const timer = setInterval(()=>{
+          elapsed++;
+          let percent = Math.floor((elapsed/MAX_TIME)*100);
+          progressBar.style.width = percent + "%";
+
+          if(currentLogs.length >= LOG_BATCH){
+            currentLogs = [];
+            logs.innerHTML = "";
+          }
+
+          for(let i=0; i<LOG_BATCH; i++){
+            const line = document.createElement("div");
+            line.className="log";
+            const base = logPool[Math.floor(Math.random()*logPool.length)];
+            const noise = Math.random().toString(16).slice(2,6);
+            line.textContent = `${base} :: 0x${noise}`;
+            logs.appendChild(line);
+            currentLogs.push(line);
+          }
+
+          logs.scrollTop = logs.scrollHeight;
+
+          if(elapsed >= MAX_TIME){
+            clearInterval(timer);
+            logs.innerHTML = "";
+            const end = document.createElement("div");
+            end.className="log done";
+            end.textContent = "✔ SIGNALMENT TERMINÉ";
+            logs.appendChild(end);
+            progressBar.style.width = "100%";
+            sound.pause();
+            sound.currentTime = 0;
+          }
+
+        }, 200);
+      };
+    </script>
+  </body>
 </html>
