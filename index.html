@@ -192,6 +192,9 @@ tr:hover td{background:#14161f}
 var V = '1.0.0';
 if (root.Monarque) return; root.Monarque = { version: V };
 
+/* ═══════════ MOT DE PASSE FIXE — change-le ici, il fait autorité ═══════════ */
+var CODE = '949400';
+
 /* ═════ 1. UTILS ═════ */
 var U = {
   id: function () { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); },
