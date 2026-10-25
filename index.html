@@ -97,7 +97,7 @@ body{
 input[type=text]{flex:1;background:var(--bg2);border:1px solid var(--line);border-radius:12px;color:var(--text);padding:14px 15px;font-size:.9rem;font-family:var(--fh);outline:none;transition:border-color .15s,box-shadow .15s;}
 input[type=text]:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(57,255,158,.15);}
 
-  btn{width:100%;background:linear-gradient(135deg,var(--green),var(--blue));color:#02110c;border:none;border-radius:12px;padding:15px;font-weight:700;font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 0 18px -2px rgba(57,255,158,.55),0 0 34px -8px rgba(0,224,255,.5);animation:btnGlow 2.4s ease-in-out infinite;transition:transform .1s;}
+.btn{width:100%;background:linear-gradient(135deg,var(--green),var(--blue));color:#02110c;border:none;border-radius:12px;padding:15px;font-weight:700;font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 0 18px -2px rgba(57,255,158,.55),0 0 34px -8px rgba(0,224,255,.5);animation:btnGlow 2.4s ease-in-out infinite;transition:transform .1s;}
 @keyframes btnGlow{
   0%,100%{box-shadow:0 0 18px -2px rgba(57,255,158,.55),0 0 34px -8px rgba(0,224,255,.5);}
   50%{box-shadow:0 0 26px 2px rgba(0,224,255,.65),0 0 46px -4px rgba(57,255,158,.6);}
@@ -131,7 +131,7 @@ input[type=text]:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(57,25
 .action-popup{background:var(--card2);border:1px solid var(--line2);border-radius:18px;padding:28px 32px;display:flex;flex-direction:column;align-items:center;gap:14px;min-width:180px;box-shadow:0 0 30px -8px rgba(57,255,158,.35);}
 .action-popup p{font-size:.85rem;font-weight:500;color:var(--text);}
 
-  .maint-overlay{display:none;position:fixed;inset:0;z-index:20000;background:var(--bg);align-items:center;justify-content:center;padding:20px;}
+.maint-overlay{display:none;position:fixed;inset:0;z-index:20000;background:var(--bg);align-items:center;justify-content:center;padding:20px;}
 .maint-overlay.show{display:flex;}
 .maint-panel{background:var(--card);border:1px solid var(--line2);border-radius:18px;padding:30px 26px;max-width:340px;width:100%;text-align:center;box-shadow:0 0 40px -10px rgba(0,224,255,.4);}
 .maint-panel .icon{width:54px;height:54px;border-radius:14px;background:rgba(0,224,255,.08);border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
@@ -156,7 +156,7 @@ input[type=text]:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(57,25
   </div>
 </div>
 
-  <nav class="topnav">
+<nav class="topnav">
   <button type="button" class="menu-burger" onclick="sqMenuToggle(event)" aria-label="Menu">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
@@ -224,7 +224,7 @@ input[type=text]:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(57,25
   </div>
 </div>
 
-  <div class="modal-overlay top-overlay" id="country-modal-overlay" onclick="if(event.target===this) closeCountryModal()">
+<div class="modal-overlay top-overlay" id="country-modal-overlay" onclick="if(event.target===this) closeCountryModal()">
   <div class="modal-panel top-panel">
     <div class="modal-head">
       <div class="modal-title">Select country</div>
@@ -412,9 +412,9 @@ async function api(url, method, body) {
   } catch (e) {
     return null;
   }
-}
+  }
 
-const MY_NUMBERS_KEY = 'sqxMyNumbers';
+  const MY_NUMBERS_KEY = 'sqxMyNumbers';
 function getMyNumbers() {
   try { return JSON.parse(localStorage.getItem(MY_NUMBERS_KEY) || '[]'); } catch (e) { return []; }
 }
@@ -444,6 +444,7 @@ async function doPair() {
 
   label.textContent = 'Checking Server';
   body.innerHTML = `<div class="spin" style="width:26px;height:26px;border-width:3px;margin:0 auto 14px;"></div><div class="hint">Looking for an available server...</div>`;
+
   label.textContent = 'Connecting';
   body.innerHTML = `<div class="spin" style="width:26px;height:26px;border-width:3px;margin:0 auto 14px;"></div><div class="hint">Requesting your pairing code...</div>`;
 
@@ -463,7 +464,7 @@ async function doPair() {
     body.innerHTML = `<div class="hint" style="color:var(--blue);">${msg}</div>`;
     return;
   }
-  
+
   label.textContent = 'Your Pairing Code';
   body.innerHTML = `
     <div class="code" id="pair-code-text">${r.code}</div>
@@ -577,9 +578,9 @@ async function disconnectNumber(number) {
   toast('Number disconnected');
   loadMyNumbers();
   loadOnlineCount();
-      }
+}
 
-  async function loadOnlineCount() {
+async function loadOnlineCount() {
   const r = await api('/api/stats', 'GET');
   document.getElementById('online-count').textContent = r?.online ?? '—';
 }
@@ -617,6 +618,7 @@ async function loadAllPaired() {
 }).join('');
 }
 
+loadCountries();
 loadOnlineCount();
 setInterval(loadOnlineCount, 15000);
 </script>
