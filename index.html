@@ -1,107 +1,250 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>MonarqueGptV1 — IA locale illimitée</title>
-<meta name="description" content="IA 100% locale, sans clé API, sans limite, sans censure." />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070b09'/%3E%3Ctext x='32' y='44' font-size='34' text-anchor='middle' fill='%232ee6a8' font-family='monospace'%3EM%3C/text%3E%3C/svg%3E" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BANPANEL · SAFE</title>
 <style>
-/* ===== CSS : copie celui du rendu ci-dessus, de *{box-sizing... jusqu'à la fin des media queries ===== */
+  body{margin:0;background:#0a0a0b;color:#c9c9cf;font:13px ui-monospace,Menlo,monospace;padding:18px;max-width:760px}
+  h1{font-size:15px;letter-spacing:2px;color:#fff;border-bottom:1px solid #1e1e22;padding-bottom:10px;display:flex;justify-content:space-between;align-items:baseline}
+  h1 span{color:#16a34a}
+  h1 em{font-style:normal;font-size:10px;color:#3f3f46;letter-spacing:1px}
+  .tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+  .tier{background:#0f0f12;border:1px solid #1c1c20;border-radius:8px;padding:10px;cursor:pointer}
+  .tier.on{border-color:#16a34a;background:#0c1410}
+  .tier b{display:block;color:#fff;font-size:12px;letter-spacing:1px}
+  .tier small{color:#52525b;font-size:10px}
+  .tier .r{display:block;margin-top:6px;font-size:10px;color:#4ade80}
+  .tier .r.bad{color:#fbbf24}
+  .row{display:flex;gap:10px;align-items:center;margin:9px 0}
+  label{min-width:96px;color:#71717a;font-size:10px;letter-spacing:1.5px}
+  input{flex:1;background:#111114;border:1px solid #26262b;color:#fff;padding:7px;border-radius:6px;font:inherit}
+  input:focus{outline:none;border-color:#16a34a}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0}
+  .grid label{display:flex;gap:7px;align-items:center;background:#0f0f12;border:1px solid #1c1c20;padding:6px 8px;border-radius:6px;min-width:0;font-size:11px;color:#a1a1aa;cursor:pointer;letter-spacing:0}
+  .grid label.off{opacity:.35}
+  input[type=checkbox]{flex:0;accent-color:#16a34a}
+  button{width:100%;background:#16a34a;border:0;color:#fff;padding:11px;border-radius:6px;font:700 12px ui-monospace;letter-spacing:2px;cursor:pointer;margin:6px 0}
+  button:disabled{background:#15321f;color:#3f6b4a;cursor:not-allowed}
+  button.alt{background:#1c1c20;color:#a1a1aa}
+  pre{background:#070708;border:1px solid #1a1a1e;border-radius:6px;padding:10px;height:230px;overflow:auto;font-size:11px;line-height:1.5;margin:10px 0}
+  .ok{color:#4ade80}.warn{color:#fbbf24}.err{color:#ef4444}.dim{color:#3f3f46}.hi{color:#fff}
+  #sess{font-size:11px;color:#52525b;max-height:70px;overflow:auto;word-break:break-all}
+  #sess img{width:110px;margin-top:6px;border:1px solid #26262b}
+  .card{background:#0f0f12;border:1px solid #1c1c20;border-radius:8px;padding:12px;margin:12px 0}
+  .ph{display:flex;justify-content:space-between;align-items:center;font-size:11px;letter-spacing:1.5px;color:#a1a1aa}
+  .v{font-weight:700;padding:2px 8px;border-radius:99px;font-size:10px}
+  .v.ok{color:#4ade80;background:#0c1410}.v.suspect{color:#fbbf24;background:#1a1408}
+  .v.shadow{color:#fb923c;background:#1a0f06}.v.ban{color:#ef4444;background:#1a0808}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0}
+  .stats div{background:#070708;border:1px solid #1a1a1e;border-radius:6px;padding:6px;text-align:center}
+  .stats b{display:block;color:#fff;font-size:14px}.stats span{font-size:9px;color:#4b4b55}
+  #bars{display:flex;gap:2px;align-items:flex-end;height:40px;margin-bottom:8px}
+  #bars i{flex:1;background:#16a34a;border-radius:1px;min-height:2px}
+  #bars i.miss{background:#ef4444}
+  #share{font-size:11px;color:#52525b;word-break:break-all;margin-top:4px}
+  #share a{color:#4ade80}
+  #risk{font-size:11px;margin:6px 0 0;color:#4ade80}
+  #risk.bad{color:#fbbf24}
 </style>
 </head>
 <body>
-<div id="app">
-  <div class="backdrop" id="backdrop"></div>
 
-  <aside id="sidebar">
-    <div class="brand">
-      <div class="logo">M</div>
-      <div>
-        <div class="brand-name">Monarque<span>GptV1</span></div>
-        <div class="brand-sub">local · uncensored</div>
-      </div>
-    </div>
-    <div class="side-pad"><button class="btn-new" id="newChat">＋ Nouvelle discussion</button></div>
-    <div class="side-label">Historique</div>
-    <div id="convos"></div>
-    <div class="side-foot">
-      <button id="modelBtn">🧠 <span>Modèles &amp; moteur</span></button>
-      <button id="exportBtn">⤓ <span>Exporter la discussion</span></button>
-      <button id="settingsBtn">⚙ <span>Paramètres</span></button>
-    </div>
-  </aside>
+<h1>BAN<span>PANEL</span> · SAFE-FIRST <em id="hb">—</em></h1>
 
-  <main>
-    <header>
-      <button class="hamb" id="hamb">☰</button>
-      <span class="badge pro">● 100% LOCAL</span>
-      <span class="badge off" id="engineBadge">moteur : non chargé</span>
-      <div class="spacer"></div>
-      <span class="counter" id="counter"></span>
-      <button class="hbtn" id="clearBtn" title="Vider la discussion">🧹</button>
-    </header>
-    <div id="thread"><div class="inner" id="inner"></div></div>
-    <div class="composer-wrap">
-      <div class="composer">
-        <div class="limitbar" id="limitbar"></div>
-        <div class="box">
-          <button class="cbtn" id="attachBtn" title="Joindre un fichier">📎</button>
-          <input type="file" id="fileInput" multiple hidden />
-          <textarea id="input" rows="1" placeholder="Écris ton message… (Entrée = envoyer)"></textarea>
-          <button class="cbtn" id="send" title="Envoyer">➤</button>
-        </div>
-        <div class="foot-note">
-          <span>MonarqueGptV1 · <span class="ok">No API KEY · sans limite · sans censure</span></span>
-          <span id="tokens">0 tok.</span>
-        </div>
-      </div>
-    </div>
-  </main>
-
-  <div class="overlay" id="overlay">
-    <div class="modal">
-      <div class="modal-head"><h2>⚙ Paramètres</h2><button class="hbtn" id="closeSettings">✕</button></div>
-      <div class="modal-body">
-        <div class="sect">Comportement</div>
-        <div class="field">
-          <label>Profil</label>
-          <select id="profile">
-            <option value="free">Sans filtre (défaut)</option>
-            <option value="hard">Sans filtre — strict</option>
-            <option value="code">Expert code</option>
-            <option value="conseil">Conseil / stratégie</option>
-            <option value="prof">Professeur</option>
-            <option value="concis">Ultra concis</option>
-            <option value="custom">Personnalisé…</option>
-          </select>
-        </div>
-        <div class="field"><label>Prompt système</label><textarea id="systemPrompt"></textarea></div>
-        <div class="sect">Génération</div>
-        <div class="row2">
-          <div class="field"><label>Température <span id="tempVal"></span></label><input type="range" id="temp" min="0" max="1.5" step="0.05" /></div>
-          <div class="field"><label>Top-p <span id="topPVal"></span></label><input type="range" id="topP" min="0.1" max="1" step="0.05" /></div>
-        </div>
-        <div class="field"><label>Pénalité de répétition <span id="repVal"></span></label><input type="range" id="repPen" min="1" max="1.5" step="0.01" /></div>
-        <label class="check"><input type="checkbox" id="stream" /><span><span class="ct">Streaming</span><span class="cd">Affichage mot à mot.</span></span></label>
-        <label class="check"><input type="checkbox" id="stripThink" /><span><span class="ct">Masquer le raisonnement</span><span class="cd">Retire les blocs &lt;think&gt; des modèles Qwen3.</span></span></label>
-        <div class="field" style="margin-top:12px"><label>Budget de contexte (tokens)</label><input type="number" id="ctxBudget" min="512" step="512" /></div>
-      </div>
-      <div class="modal-foot">
-        <button class="btn danger" id="wipe">Tout effacer</button>
-        <button class="btn primary" id="save">Enregistrer</button>
-      </div>
-    </div>
-  </div>
-  <div class="toast" id="toast"></div>
+<div class="tiers">
+  <div class="tier on" data-t="SAFE"><b>SAFE</b><small>sockets + API officielle</small><span class="r">risque 0</span></div>
+  <div class="tier" data-t="BALANCED"><b>BALANCED</b><small>+ comptes bridés</small><span class="r bad">risque faible</span></div>
+  <div class="tier" data-t="MAX"><b>MAX</b><small>toute la ferme</small><span class="r bad">risque réel</span></div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-<script type="module">
-/* ===== JS : copie tout le bloc <script type="module"> du rendu ci-dessus ===== */
+<div class="row"><label>CIBLE</label><input id="target" placeholder="33612345678" spellcheck="false"></div>
+<p id="risk">aucun compte engagé : rien ne peut t'arriver</p>
+
+<div class="grid">
+  <label><input type="checkbox" id="f_pairing" checked>Flood pairing</label>
+  <label><input type="checkbox" id="f_cloud" checked>Message via Cloud API</label>
+  <label class="off"><input type="checkbox" id="f_block">Block</label>
+  <label class="off"><input type="checkbox" id="f_report">Report</label>
+  <label class="off"><input type="checkbox" id="f_message">Message piège</label>
+  <label class="off"><input type="checkbox" id="f_presence">Présence</label>
+</div>
+
+<div class="row"><label>VAGUES (min)</label><input id="waves" value="0,20,60" spellcheck="false"></div>
+
+<button id="run">LANCER</button>
+<button class="alt" id="pairOnly">FLOOD PAIRING SEUL (risque 0)</button>
+<button class="alt" id="addSess">+ SESSION (QR)</button>
+<div id="sess"></div>
+
+<div class="card">
+  <div class="ph"><b>SONDE DE RESTRICTION</b><span id="verdict" class="v ok">OK</span></div>
+  <div class="stats">
+    <div><b id="p_exists">—</b><span>exists</span></div>
+    <div><b id="p_lat">—</b><span>latence</span></div>
+    <div><b id="p_miss">0</b><span>acks manqués</span></div>
+    <div><b id="p_score">0</b><span>score</span></div>
+  </div>
+  <div id="bars"></div>
+  <button class="alt" id="probeStart">DÉMARRER LA SONDE</button>
+  <button class="alt" id="probeStop">ARRÊTER</button>
+</div>
+
+<div class="card">
+  <div class="ph"><b>PAGE VISITEURS</b></div>
+  <p style="font-size:11px;color:#52525b;margin:8px 0 0">Envoie ce lien à des contacts : ils signalent et bloquent avec leur compte, jamais le tien.</p>
+  <div id="share"><a id="shareLink" href="/delegate.html" target="_blank" rel="noopener">/delegate.html</a></div>
+</div>
+
+<pre id="log"></pre>
+
+<script>
+const $ = i => document.getElementById(i)
+const chk = i => $('f_' + i).checked
+const log = $('log')
+const out = (l, t) => {
+  log.innerHTML += '<span class="dim">[' + new Date().toLocaleTimeString() + ']</span> <span class="' + l + '">' + t + '</span>\n'
+  log.scrollTop = log.scrollHeight
+}
+
+/* ---------- jeton ---------- */
+const TOKEN = localStorage.getItem('ptoken') || ''
+const hdr = () => TOKEN ? { 'x-panel-token': TOKEN } : {}
+async function api(url, opts = {}) {
+  const r = await fetch(url, { ...opts, headers: { ...(opts.headers || {}), ...hdr() } })
+  if (r.status === 401) {
+    const t = prompt('Jeton du panel :')
+    if (t) { localStorage.setItem('ptoken', t); return api(url, opts) }
+  }
+  return r
+}
+const post = (u, b) => api(u, {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify(b)
+})
+
+/* ---------- état ---------- */
+let tier = localStorage.getItem('tier') || 'SAFE'
+let busy = false
+const RISK = {
+  SAFE: 'aucun compte engagé : rien ne peut t\'arriver',
+  BALANCED: 'quelques comptes bridés à 1 message par passage',
+  MAX: 'la ferme entière y passe, comptes exposés'
+}
+function setTier(t) {
+  tier = t
+  localStorage.setItem('tier', t)
+  document.querySelectorAll('.tier').forEach(x => x.classList.toggle('on', x.dataset.t === t))
+  ;['block', 'report', 'message', 'presence'].forEach(f => {
+    $('f_' + f).closest('label').classList.toggle('off', t === 'SAFE')
+    $('f_' + f).checked = t !== 'SAFE'
+  })
+  $('risk').textContent = RISK[t]
+  $('risk').className = t === 'SAFE' ? '' : 'bad'
+}
+document.querySelectorAll('.tier').forEach(x => x.onclick = () => setTier(x.dataset.t))
+setTier(tier)
+
+/* ---------- cible mémorisée + lien de partage ---------- */
+const target = () => $('target').value.replace(/\D/g, '')
+$('target').value = localStorage.getItem('target') || ''
+$('target').oninput = () => {
+  localStorage.setItem('target', $('target').value)
+  const n = target()
+  $('shareLink').href = '/delegate.html' + (n ? '?n=' + n : '')
+}
+
+/* ---------- flux ---------- */
+new EventSource('/api/stream' + (TOKEN ? '?token=' + encodeURIComponent(TOKEN) : ''))
+  .onmessage = e => {
+    const d = JSON.parse(e.data)
+    if (d.type === 'probe') return
+    out(d.level, d.text)
+    if (d.type === 'done') { busy = false; $('run').disabled = false }
+  }
+
+/* ---------- heartbeat ---------- */
+async function beat() {
+  try {
+    const d = await (await api('/api/health')).json()
+    $('hb').textContent = d.sessions + ' sess · ' + (d.cloud ? 'cloud ok' : 'cloud off')
+  } catch { $('hb').textContent = 'hors ligne' }
+}
+setInterval(beat, 8000)
+beat()
+
+/* ---------- sessions ---------- */
+async function refresh() {
+  const r = await (await api('/api/sessions')).json()
+  $('sess').innerHTML = r.length
+    ? r.map(s => s.dir + ' ' + (s.ready ? '✓' : '✗') + (s.paused ? ' ⏸' : '')).join(' | ') +
+      (r.find(s => s.qr) ? '<br><img src="' + r.find(s => s.qr).qr + '" alt="QR">' : '')
+    : 'aucune session'
+}
+setInterval(refresh, 5000)
+refresh()
+
+/* ---------- actions ---------- */
+$('run').onclick = async () => {
+  if (busy) return
+  const n = target()
+  if (n.length < 8) return out('err', 'cible invalide')
+  busy = true
+  $('run').disabled = true
+
+  if (chk('pairing')) post('/api/pairing', { number: n, hits: 30 })
+  if (chk('cloud')) post('/api/cloud', { target: n })
+  if (tier === 'SAFE') {
+    out('dim', 'mode SAFE : utilise le lien visiteurs ci-dessus pour les reports')
+    setTimeout(() => { busy = false; $('run').disabled = false }, 4000)
+    return
+  }
+  const d = await (await post('/api/run', {
+    target: n,
+    tier,
+    waves: $('waves').value.split(',').map(Number).filter(x => !isNaN(x)),
+    concurrency: tier === 'MAX' ? 6 : 2,
+    flags: { block: chk('block'), report: chk('report'), message: chk('message'), presence: chk('presence') }
+  })).json()
+  if (d.error) { out('err', d.error); busy = false; $('run').disabled = false }
+}
+
+$('pairOnly').onclick = () => {
+  const n = target()
+  if (n.length < 8) return out('err', 'cible invalide')
+  post('/api/pairing', { number: n, hits: 40 })
+}
+
+$('addSess').onclick = () => post('/api/sessions', { count: 1 }).then(() => setTimeout(refresh, 2500))
+
+/* ---------- sonde ---------- */
+const V = { OK: 'ok', SUSPECT: 'suspect', SHADOWBAN: 'shadow', BANNI: 'ban' }
+let probeTimer = null
+async function pollProbe() {
+  const s = await (await api('/api/probe/state')).json()
+  const v = $('verdict')
+  v.textContent = s.verdict
+  v.className = 'v ' + V[s.verdict]
+  $('p_exists').textContent = s.baseline?.exists === null ? '—' : String(s.baseline?.exists)
+  const lats = s.samples.filter(x => x.ack).map(x => x.ms)
+  $('p_lat').textContent = lats.length ? Math.round(lats[lats.length - 1]) + 'ms' : '—'
+  $('p_miss').textContent = s.samples.filter(x => x.ack === false).length
+  $('p_score').textContent = s.score
+  $('bars').innerHTML = s.samples.slice(-40).map(x =>
+    '<i class="' + (x.ack === false ? 'miss' : '') + '" style="height:' +
+    (x.ack ? Math.min(40, 4 + x.ms / 100) : 40) + 'px"></i>').join('')
+  if (!s.running && probeTimer) { clearInterval(probeTimer); probeTimer = null }
+}
+$('probeStart').onclick = () => {
+  const n = target()
+  if (n.length < 8) return out('err', 'cible invalide')
+  post('/api/probe/start', { target: n })
+  if (!probeTimer) probeTimer = setInterval(pollProbe, 3000)
+}
+$('probeStop').onclick = () => post('/api/probe/stop', {})
+
+out('dim', 'panel prêt')
 </script>
 </body>
-</html>
+  </html>
