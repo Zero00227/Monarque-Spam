@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BANPANEL · SAFE</title>
+<title>MONARQUEV2 · SAFE</title>
 <style>
   body{margin:0;background:#0a0a0b;color:#c9c9cf;font:13px ui-monospace,Menlo,monospace;padding:18px;max-width:760px}
   h1{font-size:15px;letter-spacing:2px;color:#fff;border-bottom:1px solid #1e1e22;padding-bottom:10px;display:flex;justify-content:space-between;align-items:baseline}
@@ -68,9 +68,12 @@
   <label class="off"><input type="checkbox" id="f_report">Report</label>
   <label class="off"><input type="checkbox" id="f_message">Message piège</label>
   <label class="off"><input type="checkbox" id="f_presence">Présence</label>
+  <label class="off"><input type="checkbox" id="f_humanize">Lecture + délai avant block</label>
+  <label class="off"><input type="checkbox" id="f_unblock">Déblocage auto (rejouable)</label>
 </div>
 
 <div class="row"><label>VAGUES (min)</label><input id="waves" value="0,20,60" spellcheck="false"></div>
+<div class="row"><label>DÉBLOCAGE (s)</label><input id="unblockAfter" value="120"></div>
 
 <button id="run">LANCER</button>
 <button class="alt" id="pairOnly">FLOOD PAIRING SEUL (risque 0)</button>
@@ -136,9 +139,9 @@ function setTier(t) {
   tier = t
   localStorage.setItem('tier', t)
   document.querySelectorAll('.tier').forEach(x => x.classList.toggle('on', x.dataset.t === t))
-  ;['block', 'report', 'message', 'presence'].forEach(f => {
-    $('f_' + f).closest('label').classList.toggle('off', t === 'SAFE')
-    $('f_' + f).checked = t !== 'SAFE'
+  ;['block', 'report', 'message', 'presence', 'humanize', 'unblock'].forEach(id => {
+    $('f_' + id).closest('label').classList.toggle('off', t === 'SAFE')
+    $('f_' + id).checked = t !== 'SAFE'
   })
   $('risk').textContent = RISK[t]
   $('risk').className = t === 'SAFE' ? '' : 'bad'
@@ -178,7 +181,8 @@ beat()
 async function refresh() {
   const r = await (await api('/api/sessions')).json()
   $('sess').innerHTML = r.length
-    ? r.map(s => s.dir + ' ' + (s.ready ? '✓' : '✗') + (s.paused ? ' ⏸' : '')).join(' | ') +
+    ? r.map(s => s.dir + ' ' + (s.ready ? '✓' : '✗') + (s.paused ? ' ⏸' : '') +
+        (s.blocked ? ' ⛔' + s.blocked : '')).join(' | ') +
       (r.find(s => s.qr) ? '<br><img src="' + r.find(s => s.qr).qr + '" alt="QR">' : '')
     : 'aucune session'
 }
@@ -205,7 +209,11 @@ $('run').onclick = async () => {
     tier,
     waves: $('waves').value.split(',').map(Number).filter(x => !isNaN(x)),
     concurrency: tier === 'MAX' ? 6 : 2,
-    flags: { block: chk('block'), report: chk('report'), message: chk('message'), presence: chk('presence') }
+    unblockAfter: +$('unblockAfter').value,
+    flags: {
+      block: chk('block'), report: chk('report'), message: chk('message'),
+      presence: chk('presence'), humanize: chk('humanize'), unblock: chk('unblock')
+    }
   })).json()
   if (d.error) { out('err', d.error); busy = false; $('run').disabled = false }
 }
@@ -247,4 +255,4 @@ $('probeStop').onclick = () => post('/api/probe/stop', {})
 out('dim', 'panel prêt')
 </script>
 </body>
-  </html>
+    </html>
