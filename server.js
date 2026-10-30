@@ -11,6 +11,7 @@ import 'dotenv/config'
 import * as gov from './governor.js'
 import * as probe from './probe.js'
 import { memAuth } from './auth.js'
+import { sessionRouter } from './routes/session.js'
 
 const PORT = process.env.PORT || 8080
 const FARM = './sessions'
@@ -30,6 +31,7 @@ const toJid = n => String(n).replace(/\D/g, '') + '@s.whatsapp.net'
 const clean = n => String(n || '').replace(/\D/g, '')
 const clients = new Map()
 const sse = new Set()
+const unblockTimers = new Set()
 
 function emit(level, text, extra = {}) {
   const p = 'data: ' + JSON.stringify({ t: Date.now(), level, text, ...extra }) + '\n\n'
@@ -40,6 +42,36 @@ probe.setOnVerdict(v => {
   const p = 'data: ' + JSON.stringify({ t: Date.now(), type: 'probe', ...v }) + '\n\n'
   for (const r of sse) r.write(p)
 })
+
+/* ---------- mémoire de blocage par session ---------- */
+const blockedFile = dir => dir + '/blocked.json'
+function blockedOf(dir) {
+  try { return JSON.parse(fs.readFileSync(blockedFile(dir), 'utf8')) } catch { return {} }
+}
+function markBlocked(dir, jid) {
+  const b = blockedOf(dir)
+  b[jid] = Date.now()
+  fs.writeFileSync(blockedFile(dir), JSON.stringify(b))
+}
+function markUnblocked(dir, jid) {
+  const b = blockedOf(dir)
+  delete b[jid]
+  fs.writeFileSync(blockedFile(dir), JSON.stringify(b))
+}
+
+function scheduleUnblock(rec, jid, ms) {
+  const t = setTimeout(async () => {
+    unblockTimers.delete(t)
+    const since = Date.now() - (blockedOf(rec.dir)[jid] || 0)
+    if (since < ms * 0.8) return          // re-bloqué entre-temps, on laisse
+    try {
+      await rec.sock.updateBlockStatus(jid, 'unblock')
+      markUnblocked(rec.dir, jid)
+      emit('dim', rec.dir + ' : débloqué (rejouable)')
+    } catch { emit('warn', rec.dir + ' : déblocage échoué') }
+  }, ms)
+  unblockTimers.add(t)
+}
 
 /* ---------- jeton d'accès optionnel ---------- */
 app.use('/api', (req, res, next) => {
@@ -63,6 +95,11 @@ app.get('/api/health', (req, res) => res.json({
   sessions: [...clients.values()].filter(c => c.ready).length,
   probe: probe.isRunning(),
   cloud: !!(WA_TOKEN && WA_PHONE_ID)
+}))
+
+/* ---------- sessions (module dédié) ---------- */
+app.use('/api/sessions', sessionRouter({
+  FARM, clients, connect, emit, blockedOf, markUnblocked
 }))
 
 function sem(n) {
@@ -112,7 +149,6 @@ app.post('/api/pairing', async (req, res) => {
     done++
     if (r.ok) emit('ok', 'pair ' + done + '/' + hits + ' -> ' + r.code)
     else { rate++; emit('warn', 'pair ' + done + '/' + hits + ' -> ' + r.err) }
-    // backoff adaptatif dès que le rate-limiter mord
     await delay(rate > hits * 0.25 ? rnd(700, 1600) : rnd(120, 450))
   })))
   emit('err', 'pairing terminé : ' + (hits - rate) + ' codes, ' + rate + ' refus', { type: 'done' })
@@ -136,7 +172,6 @@ app.post('/api/cloud', async (req, res) => {
 
   let r = await fetch(url, { method: 'POST', headers: auth, body: JSON.stringify(body) })
   let d = await r.json()
-  // 131047 = fenêtre 24 h fermée, on repasse par un template approuvé
   if (d?.error?.code === 131047) {
     r = await fetch(url, { method: 'POST', headers: auth, body: JSON.stringify(tpl) })
     d = await r.json()
@@ -175,7 +210,7 @@ async function connect(dir, { pairingNumber } = {}) {
     auth: state,
     logger,
     printQRInTerminal: false,
-    browser: [fp[0], fp[1], fp[2]],   // empreinte stable, pas retirée au hasard
+    browser: [fp[0], fp[1], fp[2]],
     syncFullHistory: false,
     markOnlineOnConnect: false
   }
@@ -185,7 +220,7 @@ async function connect(dir, { pairingNumber } = {}) {
   }
 
   const sock = makeWASocket(opts)
-  const rec = { sock, dir, ready: false, jid: null, code: null, qr: null }
+  const rec = { sock, dir, ready: false, jid: null, code: null, qr: null, pairedAt: null }
   clients.set(dir, rec)
 
   sock.ev.on('creds.update', saveCreds)
@@ -197,6 +232,7 @@ async function connect(dir, { pairingNumber } = {}) {
     if (u.connection === 'open') {
       rec.ready = true
       rec.jid = sock.user?.id
+      rec.pairedAt = Date.now()
       emit('ok', dir + ' : connecté')
     }
     if (u.connection === 'close') {
@@ -230,25 +266,47 @@ async function combo(rec, jid, o) {
   if (!gate.ok) return emit('dim', rec.dir + ' : sauté (' + gate.why + ')')
 
   try {
+    // réemploi : on débloque d'abord si la cible est encore bloquée
+    if (blockedOf(rec.dir)[jid]) {
+      await s.updateBlockStatus(jid, 'unblock')
+      markUnblocked(rec.dir, jid)
+      emit('dim', rec.dir + ' : débloqué avant réemploi')
+      await delay(rnd(800, 1800))
+    }
+
     if (o.presence) {
       await s.presenceSubscribe(jid)
       await delay(rnd(500, 1400))
     }
+
+    let key = null
     if (o.message) {
       const txt = TRAPS[rnd(0, TRAPS.length - 1)]
-      await s.sendPresenceUpdate('composing', jid)   // bulle "en train d'écrire"
-      await delay(gov.typingTime(txt.length))        // durée de frappe plausible
-      await s.sendMessage(jid, { text: txt })
+      await s.sendPresenceUpdate('composing', jid)     // bulle de frappe
+      await delay(gov.typingTime(txt.length))
+      const m = await s.sendMessage(jid, { text: txt })
+      key = m?.key
       gov.record(rec.dir)
-      emit('ok', rec.dir + ' -> message (' + gov.touch(rec.dir).count + '/15 aujourdhui)')
-      await delay(gov.humanDelay())                  // jamais deux envois au même rythme
+      emit('ok', rec.dir + ' -> message (' + gov.touch(rec.dir).count + '/15)')
     }
+
+    // humanisation : on lit, on laisse passer un délai crédible, puis on bloque
+    if (o.humanize) {
+      if (key) { try { await s.readMessages([key]) } catch {} }
+      const wait = gov.readDelay()
+      emit('dim', rec.dir + ' : lu, blocage dans ' + Math.round(wait / 1000) + ' s')
+      await delay(wait)
+    } else {
+      await delay(gov.humanDelay())
+    }
+
     if (o.report) {
       try { await reportJid(s, jid); emit('warn', rec.dir + ' -> report') } catch {}
       await delay(rnd(200, 500))
     }
     if (o.block) {
       await s.updateBlockStatus(jid, 'block')
+      markBlocked(rec.dir, jid)
       emit('err', rec.dir + ' -> block')
     }
   } catch (e) {
@@ -262,10 +320,19 @@ app.post('/api/run', async (req, res) => {
   if (target.length < 8) return res.status(400).json({ error: 'cible invalide' })
 
   const tier = ['SAFE', 'BALANCED', 'MAX'].includes(req.body?.tier) ? req.body.tier : 'SAFE'
-  const flags = req.body?.flags || {}
+  const f = req.body?.flags || {}
+  const flags = {
+    block: !!f.block,
+    report: !!f.report,
+    message: !!f.message,
+    presence: !!f.presence,
+    humanize: f.humanize !== false,
+    unblock: f.unblock !== false
+  }
   const waves = (Array.isArray(req.body?.waves) ? req.body.waves : [0])
     .map(Number).filter(n => !isNaN(n) && n >= 0).slice(0, 6)
   const concurrency = Math.min(Math.max(parseInt(req.body?.concurrency) || 2, 1), 12)
+  const unblockAfterMs = Math.min(Math.max(parseInt(req.body?.unblockAfter) || 120, 30), 1800) * 1000
 
   const jid = toJid(target)
   const ready = [...clients.values()].filter(c => c.ready && !gov.isPaused(c.dir))
@@ -290,6 +357,11 @@ app.post('/api/run', async (req, res) => {
     await Promise.all(ready.map(r => limit(() => combo(r, jid, flags))))
     emit('hi', 'vague ' + (w + 1) + ' terminée')
 
+    if (flags.block && flags.unblock) {
+      for (const r of ready) if (blockedOf(r.dir)[jid]) scheduleUnblock(r, jid, unblockAfterMs)
+      emit('dim', 'déblocage planifié dans ' + Math.round(unblockAfterMs / 1000) + ' s (ferme réutilisable)')
+    }
+
     if (probe.isRunning() && probe.score().verdict === 'BANNI') {
       emit('err', 'cible bannie - combo interrompu, inutile de continuer')
       break
@@ -309,42 +381,8 @@ app.post('/api/probe/start', async (req, res) => {
 app.post('/api/probe/stop', (req, res) => { probe.stop(); res.json({ ok: true }) })
 app.get('/api/probe/state', (req, res) => res.json(probe.state()))
 
-/* ========== governor & sessions ========== */
+/* ========== governor ========== */
 app.get('/api/guard', (req, res) => res.json(gov.snap()))
-app.post('/api/guard/:dir/resume', (req, res) => { gov.resume(FARM + '/' + req.params.dir); res.json({ ok: true }) })
-
-app.get('/api/sessions', (req, res) => res.json(fs.readdirSync(FARM).map(d => {
-  const c = clients.get(FARM + '/' + d)
-  return {
-    dir: d,
-    ready: !!c?.ready,
-    jid: c?.jid || null,
-    code: c?.code || null,
-    qr: c?.qr || null,
-    paused: gov.isPaused(FARM + '/' + d)
-  }
-})))
-
-app.post('/api/sessions', async (req, res) => {
-  const count = Math.min(Math.max(parseInt(req.body?.count) || 1, 1), 10)
-  const number = req.body?.number ? clean(req.body.number) : null
-  const out = []
-  for (let i = 0; i < count; i++) {
-    const dir = FARM + '/s' + Date.now() + '_' + i
-    const rec = await connect(dir, number ? { pairingNumber: number } : {})
-    out.push({ dir, code: rec.code, qr: rec.qr })
-  }
-  res.json(out)
-})
-
-app.delete('/api/sessions/:dir', async (req, res) => {
-  const key = FARM + '/' + req.params.dir
-  if (!fs.existsSync(key)) return res.status(404).json({ error: 'inconnue' })
-  try { await clients.get(key)?.sock.logout() } catch {}
-  clients.delete(key)
-  fs.rmSync(key, { recursive: true, force: true })
-  res.json({ ok: true })
-})
 
 /* ========== arrêt propre ========== */
 const server = app.listen(PORT, () => console.log('panel sur :' + PORT))
@@ -353,8 +391,9 @@ for (const sig of ['SIGINT', 'SIGTERM']) {
   process.on(sig, async () => {
     console.log('arrêt…')
     probe.stop()
+    for (const t of unblockTimers) clearTimeout(t)
     for (const c of clients.values()) { try { c.sock.end(undefined) } catch {} }
     server.close(() => process.exit(0))
     setTimeout(() => process.exit(0), 3000)
   })
-                       }
+}
